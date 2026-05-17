@@ -12,6 +12,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at top, #1d2938 0%, #10151c 55%),
     #10151c;
@@ -185,31 +186,85 @@ canvas {
 
 @media (max-width: 640px) {
   .game-page {
-    padding: 16px;
+    min-height: 100dvh;
+    align-items: flex-start;
+    padding: 10px;
   }
 
   .game-panel {
-    padding: 18px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 16px;
   }
 
   .game-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .game-header h1 {
+    font-size: 1.45rem;
+  }
+
+  .subtitle {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    line-height: 1.35;
   }
 
   #start-button {
     width: 100%;
+    padding: 10px 14px;
   }
 
   .game-info {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .info-card {
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .info-label {
+    margin-bottom: 4px;
+    font-size: 0.78rem;
+  }
+
+  .info-card strong {
+    font-size: 1rem;
+  }
+
+  .game-board-wrapper {
+    margin-bottom: 10px;
+  }
+
+  #game-canvas {
+    width: min(100%, calc(100dvh - 320px), 360px);
+    max-width: 100%;
   }
 
   .touch-controls {
-    width: min(100%, 280px);
+    width: min(100%, 240px);
+    margin-bottom: 10px;
+    gap: 8px;
   }
 
   .touch-button {
-    min-height: 62px;
+    min-height: 54px;
+    border-radius: 14px;
+  }
+
+  .game-footer {
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .game-footer p {
+    margin: 2px 0;
   }
 }

@@ -18,6 +18,7 @@ const touchDirectionVectors = {
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
 const moveInterval = 140;
+const maxQueuedDirections = 3;
 
 const directionVectors = {
   ArrowUp: { x: 0, y: -1 },
@@ -38,6 +39,7 @@ const gameState = {
   food: { x: 0, y: 0 },
   direction: { ...initialDirection },
   nextDirection: { ...initialDirection },
+  pendingDirections: [],
   score: 0,
   bestScore: getBestScore(),
   isRunning: false,
@@ -84,6 +86,7 @@ function resetGame() {
   ];
   gameState.direction = { ...initialDirection };
   gameState.nextDirection = { ...initialDirection };
+  gameState.pendingDirections = [];
   gameState.score = 0;
   gameState.isGameOver = false;
   gameState.food = createFood();
@@ -152,7 +155,7 @@ function gameLoop() {
     return;
   }
 
-  gameState.direction = { ...gameState.nextDirection };
+  applyQueuedDirection();
 
   const nextHead = {
     x: wrapPosition(gameState.snake[0].x + gameState.direction.x),
@@ -283,16 +286,46 @@ function drawOverlay(title, subtitle) {
   context.fillText(subtitle, canvas.width / 2, canvas.height / 2 + 20);
 }
 
-function applyDirection(nextVector) {
-  const isReverseDirection =
-    nextVector.x === -gameState.direction.x &&
-    nextVector.y === -gameState.direction.y;
+function isOppositeDirection(firstDirection, secondDirection) {
+  return (
+    firstDirection.x === -secondDirection.x &&
+    firstDirection.y === -secondDirection.y
+  );
+}
 
-  if (isReverseDirection) {
+function applyQueuedDirection() {
+  if (gameState.pendingDirections.length === 0) {
+    gameState.direction = { ...gameState.nextDirection };
     return;
   }
 
-  gameState.nextDirection = nextVector;
+  gameState.direction = gameState.pendingDirections.shift();
+  gameState.nextDirection =
+    gameState.pendingDirections.at(-1) ?? { ...gameState.direction };
+}
+
+function queueDirection(nextVector) {
+  const queuedDirections = gameState.pendingDirections;
+  const lastDirection = queuedDirections.at(-1) ?? gameState.nextDirection;
+
+  if (
+    (lastDirection.x === nextVector.x && lastDirection.y === nextVector.y) ||
+    isOppositeDirection(lastDirection, nextVector) ||
+    queuedDirections.length >= maxQueuedDirections
+  ) {
+    return;
+  }
+
+  queuedDirections.push({ ...nextVector });
+  gameState.nextDirection = { ...queuedDirections.at(-1) };
+}
+
+function applyDirection(nextVector) {
+  if (isOppositeDirection(gameState.direction, nextVector)) {
+    return;
+  }
+
+  queueDirection(nextVector);
 }
 
 function handleDirectionChange(event) {
